@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import ua.com.owu.entity.User;
+import ua.com.owu.servsice.MailService;
 import ua.com.owu.servsice.UserService;
 
 import java.io.File;
@@ -16,6 +17,9 @@ import java.io.IOException;
 
 @Controller
 public class MainController {
+
+    @Autowired
+    private MailService mailService;
 
     @Autowired
     private UserService userService;
@@ -33,12 +37,21 @@ public class MainController {
         String path = System.getProperty("user.home") + File.separator + "images" + File.separator;
         avatar.transferTo(new File(path + filename));
 
-        userService.save(User.builder()
+        System.out.println(filename);
+        System.out.println(path);
+
+        User user = User.builder()
                 .name(name)
-                .avatar("/avatarka/"+filename)
+                .avatar("/avatarka/" + filename)
                 .email(email)
-                .build());
+                .build();
+        userService.save(user);
+        mailService.sendEmail(user);
+
         return "redirect:/";
 
+
     }
+
+
 }
